@@ -5,56 +5,57 @@
 using namespace std;
 using namespace fm;
 
-void testSkipList() {
-  default_random_engine engine(random_device{}());
-  uniform_int_distribution<int> dist(1, 10000);
+default_random_engine engine(random_device{}());
+uniform_int_distribution<int> distribution(1, 1000);
+
+void testInsert() {
   SkipList<int, string> skip_list;
-  string str("hello world");
 
-  for (int i = 0; i < 50000; ++i)
-    skip_list.emplace(dist(engine), str);
-  for (int i = 0; i < 50000; ++i) {
-    string tmp("hello asian");
-    skip_list.insert(make_pair(dist(engine), std::move(tmp)));
+  for (int i = 0; i < 100; ++i)
+    // CMakeLists.txt设置了隐式类型转换警告，所以这里会进行告警，但不用理它
+    skip_list.insert(make_pair(distribution(engine), "hello"));
+  for (int i = 0; i < 100; ++i) {
+    string tmp("world");
+    skip_list.emplace(distribution(engine), std::move(tmp));
   }
   cout << "current skip list size: " << skip_list.size() << endl;
-
-  for (int i = 200; i < 350; ++i)
-    skip_list.erase(i);
-  for (int i = 300; i < 400; ++i) {
-    if (skip_list.contains(i))
-      cout << "key " << i << " exits" << endl;
-    else
-      cout << "Key " << i << " is not exited" << endl;
-  }
-  cout << "current skip list size: " << skip_list.size() << endl;
-  auto iter_of_20 = skip_list.find(20);
-  if (iter_of_20 != skip_list.end()) {
-    for (auto iter = skip_list.begin(); iter != iter_of_20; ++iter)
-      cout << "key: " << setw(2) << iter->key() << ", value: "
-           << iter->value() << endl;
-  }
 }
 
-void testAnother() {
+void testErase() {
   SkipList<int, string> skip_list;
-  skip_list[32] = "hello world";
-  cout << "\nskip list size: " << skip_list.size() << endl;
-  cout << boolalpha << skip_list.contains(32) << endl;
-  auto iter = skip_list.find(32);
-  if (iter != skip_list.end())
-    cout << iter->key() << endl;
-  for (const auto &elem:skip_list)
-    cout << elem.key() << ' ' << elem.value() << endl;
 
-  SkipList<int, string> skip_list1(std::move(skip_list));
-  cout << "old skip list size: " << skip_list.size() << endl;
-  cout << "new skip list size: " << skip_list1.size() << endl;
+  for (int i = 0; i < 100; ++i)
+    skip_list.emplace(distribution(engine), "women");
+  cout << "skip list size before erase: " << skip_list.size() << endl;
+  for (int i = 300; i < 500; ++i) {
+    auto iter = skip_list.find(i);
+    if (iter != skip_list.end())
+      skip_list.erase(iter);
+  }
+  cout << "skip list size after erase: " << skip_list.size() << endl;
+}
+
+void testMove() {
+  SkipList<int, vector<int>> skip_list;
+
+  skip_list[32] = vector<int>{2, 3, 4, 5};
+  skip_list[35] = vector<int>{23, 432, 543, 2};
+  cout << "skip list size before moving: " << skip_list.size() << endl;
+  decltype(skip_list) skip_list_move(std::move(skip_list));
+  cout << "old skip list size after moving: " << skip_list.size() << endl;
+  cout << "new skip list size after moving: " << skip_list_move.size() << endl;
+};
+
+void doubleLine() {
+  cout << "=================================" << endl;
 }
 
 int main() {
-  // 使用gTest来进行单元测试会更好
-  testSkipList();
-  testAnother();
+  // 使用gTest进行单元测试会更好
+  testInsert();
+  doubleLine();
+  testErase();
+  doubleLine();
+  testMove();
   return 0;
 }

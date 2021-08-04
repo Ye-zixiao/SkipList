@@ -229,14 +229,14 @@ class SkipList {
   Iterator begin() const { return Iterator(head_->getNext(0)); }
   Iterator end() const { return Iterator(); }
   SizeType size() const { return size_; }
+  bool empty() const { return size_ == 0; }
 
  private:
   NodeType *findLessThan(const KeyType &key, NodeType *prev_arr[kMaxHeight]) const {
     NodeType *node = head_;
     for (int height = kMaxHeight - 1; height >= 0; --height) {
-      while (node->getNext(static_cast<size_t>(height)) &&
-          comparator_(node->getNext(static_cast<size_t>(height))->key(), key))
-        node = node->getNext(static_cast<size_t>(height));
+      while (node->getNext(height) && comparator_(node->getNext(height)->key(), key))
+        node = node->getNext(height);
       if (prev_arr) prev_arr[height] = node;
     }
     return node;
